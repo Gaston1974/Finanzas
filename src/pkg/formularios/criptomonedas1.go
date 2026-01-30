@@ -2,6 +2,7 @@ package formularios
 
 import (
 	"fmt"
+	"hello/src/pkg/apiDatas"
 	"hello/src/pkg/scripts"
 	"hello/src/pkg/styles"
 
@@ -14,19 +15,14 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 // Show loads a modificacion example window for the specified app context
-func ShowCryptos(im *canvas.Image, cont *fyne.Container, id string, win fyne.Window, a fyne.App) {
+func ShowCryptosInf(im *canvas.Image, cont *fyne.Container, id string, win fyne.Window, a fyne.App) {
 
 	cont.Layout = styles.NewBarberiaLayout(120)
-
-	type Correo struct {
-		Direccion string `json:"Direccion"`
-	}
 
 	titulo := canvas.NewText("GENERACION DE INFORMES", color.White)
 	titulo.TextStyle = fyne.TextStyle{Bold: true, Italic: false, Underline: true, Symbol: true}
@@ -40,7 +36,7 @@ func ShowCryptos(im *canvas.Image, cont *fyne.Container, id string, win fyne.Win
 	in2.PlaceHolder = "0"
 	in3 := widget.NewEntry()
 	in3.PlaceHolder = "0"
-	button := widget.NewButton("DESCARGAS", func() { SetPath(a, lbl) })
+	button := widget.NewButton("DESCARGAS", func() { apiDatas.SetPath(a, lbl) })
 	button.Importance = widget.MediumImportance
 
 	form := widget.NewForm()
@@ -65,7 +61,7 @@ func ShowCryptos(im *canvas.Image, cont *fyne.Container, id string, win fyne.Win
 		lbl2.SetText("GENERANDO ARCHIVO .....")
 		form.Refresh()
 
-		res := scripts.Info1(lbl.Text, in1.Text, in2.Text, in3.Text)
+		res, _ := scripts.Info1(lbl.Text, in1.Text, in2.Text, in3.Text)
 
 		if res == 0 {
 			lbl2.SetText("ARCHIVO GENERADO")
@@ -78,6 +74,7 @@ func ShowCryptos(im *canvas.Image, cont *fyne.Container, id string, win fyne.Win
 		} else {
 
 			lbl2.SetText("ERROR: ARCHIVO NO GENERADO")
+			//apiDatas.Log(msg, "C:\\log.txt")
 
 		}
 
@@ -87,34 +84,5 @@ func ShowCryptos(im *canvas.Image, cont *fyne.Container, id string, win fyne.Win
 
 	cont.Objects = []fyne.CanvasObject{layout.NewSpacer(), form, layout.NewSpacer()}
 	cont.Refresh()
-
-}
-
-func SetPath(a fyne.App, label *widget.Label) {
-
-	w := a.NewWindow("Select Output Folder")
-	w.Resize(fyne.NewSize(650, 510))
-	w.CenterOnScreen()
-
-	dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
-		if err != nil {
-			dialog.ShowError(err, w)
-			return
-		}
-		if uri == nil {
-			// User canceled
-			return
-		}
-
-		folderPath := uri.Path()
-		label.SetText(folderPath)
-
-		w.Close()
-
-		// Example: generated file path
-		// fmt.Println("Generated file will be saved in:", folderPath)
-	}, w)
-
-	w.Show()
 
 }

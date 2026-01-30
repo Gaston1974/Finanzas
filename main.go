@@ -61,7 +61,7 @@ func main() {
 	// ------ Create child nodes ------
 
 	child1 := &Node{"Cryptos", icono, false, nil, nil}
-	// child2 := &Node{"Precios - comparativo", icono, false, formularios.ShowCryptos, nil}
+	child2 := &Node{"Causas", icono, false, formularios.ShowCausas, nil}
 	// child3 := &Node{"Baja", nil, false, formularios.ShowBaja, nil}
 	// child4 := &Node{"Modificacion", nil, true, nil, nil}
 	// child5 := &Node{"Consulta", nil, true, formularios.ShowConsulta, nil}
@@ -69,10 +69,10 @@ func main() {
 	// child6 := &Node{"Salir", theme.HomeIcon(), true, formularios.ShowSalir, nil}
 	// child8 := &Node{"Notificar", theme.HomeIcon(), true, formularios.ShowNotificar, nil}
 
-	root.Children = append(root.Children, child1)
+	root.Children = append(root.Children, child1, child2)
 
-	grandchild1 := &Node{"Precios - historico", nil, false, formularios.ShowCryptos, nil}
-	grandchild2 := &Node{"Precios - comparativo", nil, false, formularios.ShowCryptos, nil}
+	grandchild1 := &Node{"Precios - historico", nil, false, formularios.ShowCryptosInf, nil}
+	grandchild2 := &Node{"Precios - comparativo", nil, false, formularios.ShowCryptosCmp, nil}
 	// grandchild4 := &Node{"Contraseñas", nil, false, formularios.ShowContrasenias, nil}
 	// grandchild14 := &Node{"Emprendedor", nil, false, formularios.ShowClienteUpdt, nil}
 	// grandchild16 := &Node{"Feria", nil, false, formularios.ShowFeria, nil}
@@ -123,7 +123,7 @@ func main() {
 	content2 := container.New(styles.NewBarberiaLayout(115))
 
 	//content2.Objects = []fyne.CanvasObject{container.NewPadded(logo), layout.NewSpacer(), container.NewPadded(logo)} //canvas.NewText("	NOMBRE DEL NEGOCIO", color.White)
-	content2.Objects = []fyne.CanvasObject{layout.NewSpacer(), canvas.NewText("DEPARTAMENTO DE INVESTIGACIONES DE DELITOS TECNOÓGICOS", color.White), layout.NewSpacer()}
+	content2.Objects = []fyne.CanvasObject{layout.NewSpacer(), canvas.NewText("DEPARTAMENTO DE INVESTIGACIONES DE DELITOS TECNOLÓGICOS", color.White), layout.NewSpacer()}
 
 	//flag := &i
 	id := ""
@@ -136,7 +136,7 @@ func main() {
 			case "":
 				return []widget.TreeNodeID{"Consultas", "Salir"}
 			case "Consultas":
-				return []widget.TreeNodeID{"Cryptos"}
+				return []widget.TreeNodeID{"Cryptos", "Causas"}
 			case "Cryptos":
 				return []widget.TreeNodeID{"Precios - historico", "Precios - comparativo"}
 			}

@@ -1,6 +1,8 @@
 package apiDatas
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,7 +13,13 @@ import (
 	"strings"
 	"time"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
+	"github.com/joho/godotenv"
 	"github.com/tealeg/xlsx"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Puntuaciones struct {
@@ -318,6 +326,60 @@ func AddStyle(i int) *xlsx.Style {
 
 }
 
-// func AddSheet(i *xlsx.Sheet) *xlsx.Row {
+func SetPath(a fyne.App, label *widget.Label) {
 
-// }
+	w := a.NewWindow("Select Output Folder")
+	w.Resize(fyne.NewSize(650, 510))
+	w.CenterOnScreen()
+
+	dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+		if uri == nil {
+			// User canceled
+			return
+		}
+
+		folderPath := uri.Path()
+		label.SetText(folderPath)
+
+		w.Close()
+
+		// Example: generated file path
+		// fmt.Println("Generated file will be saved in:", folderPath)
+	}, w)
+
+	w.Show()
+
+}
+
+type Acceso struct {
+	Cliente *sql.DB
+}
+
+func (a *Acceso) SetCliente() (context.Context, int, string) {
+
+	godotenv.Load(".env")
+	//postgresURI := os.Getenv("DBURL")
+	mysqlURI := os.Getenv("DBURL")
+	if mysqlURI == "" {
+		msg := "No URL variable is found on the environment"
+		fmt.Printf("%s", msg)
+		return nil, 0, msg
+	}
+
+	ctx := context.Background()
+	var err error
+	a.Cliente, err = sql.Open("mysql", mysqlURI)
+
+	if err != nil {
+		msg := "No se ha logrado establecer conexion a la base de datos, intente mas tarde nuevamente. .."
+		fmt.Printf("Cant connect to database : %s", err)
+		return nil, 0, msg
+	}
+
+	return ctx, 1, ""
+
+}

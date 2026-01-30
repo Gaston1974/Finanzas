@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"sort"
-	"time"
 
 	"github.com/Finnhub-Stock-API/finnhub-go/v2"
 
@@ -20,7 +19,12 @@ type Crypto struct {
 	Price  float64
 }
 
-func Info2() {
+type Classify struct {
+	Name     Crypto
+	Category string
+}
+
+func Info2() []Classify {
 
 	godotenv.Load(".env")
 
@@ -64,51 +68,64 @@ func Info2() {
 		return results[i].Price > results[j].Price
 	})
 
+	var Str Classify
+	var Info []Classify
+
 	// ---- Classify by price ----
 	fmt.Println("💰 Crypto classification (by price):")
 	for _, c := range results {
+
 		category := classify(c.Price)
 		fmt.Printf("%-18s  $%-10.2f  %s\n", c.Symbol, c.Price, category)
+
+		Str.Name.Price = c.Price
+		Str.Name.Symbol = c.Symbol
+		Str.Category = category
+
+		Info = append(Info, Str)
+
 	}
+
+	return Info
 
 	// ---- Historical candles (last 5 days) ----
-	fmt.Println("\n📈 5-day historical candles: ")
+	// fmt.Println("\n📈 5-day historical candles: ")
 
-	to := time.Now().Unix()
-	from := time.Now().AddDate(0, 0, -10).Unix()
+	// to := time.Now().Unix()
+	// from := time.Now().AddDate(0, 0, -10).Unix()
 
-	for _, c := range results {
-		fmt.Println("🔹", c.Symbol)
+	// for _, c := range results {
+	// 	fmt.Println("🔹", c.Symbol)
 
-		candles, _, err := client.DefaultApi.CryptoCandles(context.Background()).
-			Symbol(c.Symbol).
-			Resolution("60").
-			From(from).
-			To(to).
-			Execute()
+	// 	candles, _, err := client.DefaultApi.CryptoCandles(context.Background()).
+	// 		Symbol(c.Symbol).
+	// 		Resolution("60").
+	// 		From(from).
+	// 		To(to).
+	// 		Execute()
 
-		if err != nil || *candles.S != "ok" {
-			//fmt.Println("Status:", candles.S) // "no_data", "error"
-			fmt.Println("  No candle data")
-			continue
-		}
+	// 	if err != nil || *candles.S != "ok" {
+	// 		//fmt.Println("Status:", candles.S) // "no_data", "error"
+	// 		fmt.Println("  No candle data")
+	// 		continue
+	// 	}
 
-		r := *candles.O
-		s := *candles.C
+	// 	r := *candles.O
+	// 	s := *candles.C
 
-		for i, v := range *candles.T {
+	// 	for i, v := range *candles.T {
 
-			t := time.Unix(int64(v), 0).UTC()
-			fmt.Printf(
-				"  %s  O: %.2f  C: %.2f\n",
-				t.Format("2006-01-02"),
-				r[i],
-				s[i],
-			)
+	// 		t := time.Unix(int64(v), 0).UTC()
+	// 		fmt.Printf(
+	// 			"  %s  O: %.2f  C: %.2f\n",
+	// 			t.Format("2006-01-02"),
+	// 			r[i],
+	// 			s[i],
+	// 		)
 
-		}
-		fmt.Println()
-	}
+	// 	}
+	// 	fmt.Println()
+	// }
 }
 
 // ---- Price classification ----

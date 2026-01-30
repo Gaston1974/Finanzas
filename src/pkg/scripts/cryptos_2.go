@@ -23,7 +23,7 @@ type Kline struct {
 	CloseTime int64
 }
 
-func Info1(path string, days, months, years string) int {
+func Info1(path string, days, months, years string) (int, string) {
 
 	// Cryptos to fetch
 	cryptos := []string{"BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT"}
@@ -41,8 +41,8 @@ func Info1(path string, days, months, years string) int {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Sheet1")
 	if err != nil {
-		fmt.Printf("Failed to add sheet: %s\n", err)
-		return 0
+		fmt.Printf("Failed to add sheet: %s\n", err.Error())
+		return 0, err.Error()
 	}
 
 	style := apiDatas.AddStyle(2)
@@ -165,10 +165,10 @@ func Info1(path string, days, months, years string) int {
 	err = file.Save(path + "/BINANCE.xlsx")
 	if err != nil || i == 1 {
 		fmt.Printf("Failed to save file: %s\n", err)
-		return 1
+		return 1, "archivo generado"
 	} else {
 		fmt.Println("Excel file 'BINANCE.xlsx' created successfully.")
-		return 0
+		return 0, "error en armado de excel"
 	}
 
 }
