@@ -29,3 +29,10 @@ var resourceGNAPng = &fyne.StaticResource{
 	StaticName:    "GNA.png",
 	StaticContent: resourceGNAPngData,
 }
+
+//go:embed libros.png
+var resourceLibrosPngData []byte
+var resourceLibrosPng = &fyne.StaticResource{
+	StaticName:    "libros.png",
+	StaticContent: resourceLibrosPngData,
+}

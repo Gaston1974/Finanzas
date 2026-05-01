@@ -26,7 +26,7 @@ type Kline struct {
 func Info1(path string, days, months, years string) (int, string) {
 
 	// Cryptos to fetch
-	cryptos := []string{"BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT"}
+	cryptos := []string{"BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "ETHBTC", "BNBBTC"}
 
 	// Time range: last days
 
@@ -82,6 +82,7 @@ func Info1(path string, days, months, years string) (int, string) {
 
 		klines, err := fetchBinanceKlines(symbol, "1d", from, to)
 		totalklines = append(totalklines, klines...)
+		fmt.Printf("klines:%v", klines)
 
 		if err != nil {
 			log.Println("Error:", err)

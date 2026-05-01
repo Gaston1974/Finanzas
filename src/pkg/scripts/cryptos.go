@@ -4,11 +4,13 @@ package scripts
 
 import (
 	"context"
-	"fmt"
+
 	"log"
 	"os"
 	"sort"
+	"strings"
 
+	"fyne.io/fyne/v2/widget"
 	"github.com/Finnhub-Stock-API/finnhub-go/v2"
 
 	"github.com/joho/godotenv"
@@ -24,13 +26,18 @@ type Classify struct {
 	Category string
 }
 
-func Info2() []Classify {
+func Info2(form *widget.Form, lbl *widget.Label) ([]Classify, int) {
 
 	godotenv.Load(".env")
+
+	ch := make(chan int)
+
+	Worker(lbl, ch)
 
 	apiKey := os.Getenv("FINNHUB_API_KEY")
 	if apiKey == "" {
 		log.Fatal("FINNHUB_API_KEY not set")
+		return nil, 0
 	}
 
 	cfg := finnhub.NewConfiguration()
@@ -46,7 +53,7 @@ func Info2() []Classify {
 
 	var results []Crypto
 
-	fmt.Println("📊 Fetching current crypto prices... ")
+	// fmt.Println("📊 Fetching current crypto prices... ")
 
 	for _, symbol := range cryptos {
 		quote, _, err := client.DefaultApi.Quote(context.Background()).
@@ -72,21 +79,26 @@ func Info2() []Classify {
 	var Info []Classify
 
 	// ---- Classify by price ----
-	fmt.Println("💰 Crypto classification (by price):")
+	// fmt.Println("💰 Crypto classification (by price):")
 	for _, c := range results {
 
 		category := classify(c.Price)
-		fmt.Printf("%-18s  $%-10.2f  %s\n", c.Symbol, c.Price, category)
+		// fmt.Printf("%-18s  $%-10.2f  %s\n", c.Symbol, c.Price, category)
 
 		Str.Name.Price = c.Price
-		Str.Name.Symbol = c.Symbol
+		_, aft, _ := strings.Cut(c.Symbol, ":")
+		Str.Name.Symbol = aft
 		Str.Category = category
 
 		Info = append(Info, Str)
 
 	}
 
-	return Info
+	ch <- 1
+	form.Refresh()
+	close(ch) // tell the goroutine we're done
+
+	return Info, 1
 
 	// ---- Historical candles (last 5 days) ----
 	// fmt.Println("\n📈 5-day historical candles: ")
@@ -132,10 +144,58 @@ func Info2() []Classify {
 func classify(price float64) string {
 	switch {
 	case price >= 10000:
-		return "🟢 High-value crypto"
+		//return "🟢 High-value crypto"
+		return "ALTO"
 	case price >= 100:
-		return "🟡 Mid-value crypto"
+		//return "🟡 Mid-value crypto"
+		return "MEDIO"
 	default:
-		return "🔵 Low-value crypto"
+		//return "🔵 Low-value crypto"
+		return "BAJO"
 	}
+}
+
+// func ProgressBar(a fyne.App, ch <-chan int) {
+
+// 	w := a.NewWindow("")
+
+// 	progress := widget.NewProgressBar()
+// 	infinite := widget.NewProgressBarInfinite()
+
+// 	go func() {
+// 		for i := 0.0; i <= 1.0; i += 0.1 {
+// 			time.Sleep(time.Millisecond * 250)
+// 			progress.SetValue(i)
+
+// 		}
+
+// 		msg := <-ch
+
+// 		if msg == 1 {
+// 			w.Close()
+// 		}
+
+// 	}()
+
+// 	w.SetContent(container.NewVBox(progress, infinite))
+// 	w.Resize(fyne.NewSize(250, 50))
+// 	w.Show()
+// }
+
+func Worker(lbl *widget.Label, ch <-chan int) {
+
+	lbl.Text = "PROCESANDO.."
+
+	go func() {
+
+		msg := <-ch
+
+		if msg == 1 {
+
+			lbl.Text = ""
+
+		}
+
+	}()
+
 }

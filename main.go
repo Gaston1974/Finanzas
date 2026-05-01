@@ -4,12 +4,14 @@ package main
 
 import (
 	"image/color"
+	"log"
 	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/layout"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	//"fyne.io/fyne/v2/canvas"
 
@@ -35,11 +37,11 @@ func main() {
 
 	os.Setenv("FYNE_DRIVER", "software")
 
-	// Initialize GLFW
-	// if err := glfw.Init(); err != nil {
-	// 	log.Fatalln("Failed to initialize GLFW:", err)
-	// }
-	// defer glfw.Terminate()
+	//Initialize GLFW
+	if err := glfw.Init(); err != nil {
+		log.Fatalln("Failed to initialize GLFW:", err)
+	}
+	defer glfw.Terminate()
 
 	// godotenv.Load(".env")
 
@@ -54,6 +56,7 @@ func main() {
 	a := app.NewWithID("com.finanzas.app")
 	w := a.NewWindow("Sistema de gestion de aplicaciones - version 1.0")
 	icono := resourceCrypto4Png
+	icono2 := resourceLibrosPng
 	// ------- Create root node ---------
 
 	root := &Node{"Consultas", icono, false, nil, nil}
@@ -61,23 +64,16 @@ func main() {
 	// ------ Create child nodes ------
 
 	child1 := &Node{"Cryptos", icono, false, nil, nil}
-	child2 := &Node{"Causas", icono, false, formularios.ShowCausas, nil}
-	// child3 := &Node{"Baja", nil, false, formularios.ShowBaja, nil}
-	// child4 := &Node{"Modificacion", nil, true, nil, nil}
-	// child5 := &Node{"Consulta", nil, true, formularios.ShowConsulta, nil}
-	// child7 := &Node{"Backup", nil, true, formularios.ShowBackup, nil}
-	// child6 := &Node{"Salir", theme.HomeIcon(), true, formularios.ShowSalir, nil}
-	// child8 := &Node{"Notificar", theme.HomeIcon(), true, formularios.ShowNotificar, nil}
+	child2 := &Node{"Causas", icono2, false, formularios.ShowCausas, nil}
 
 	root.Children = append(root.Children, child1, child2)
 
 	grandchild1 := &Node{"Precios - historico", nil, false, formularios.ShowCryptosInf, nil}
 	grandchild2 := &Node{"Precios - comparativo", nil, false, formularios.ShowCryptosCmp, nil}
-	// grandchild4 := &Node{"Contraseñas", nil, false, formularios.ShowContrasenias, nil}
-	// grandchild14 := &Node{"Emprendedor", nil, false, formularios.ShowClienteUpdt, nil}
-	// grandchild16 := &Node{"Feria", nil, false, formularios.ShowFeria, nil}
+	grandchild3 := &Node{"Precios - CoinMarketCap", nil, false, formularios.ShowCryptosMM, nil}
+	grandchild4 := &Node{"Precios - Acciones", nil, false, formularios.ShowCryptosWW, nil}
 
-	child1.Children = append(child1.Children, grandchild1, grandchild2) // info
+	child1.Children = append(child1.Children, grandchild1, grandchild2, grandchild3, grandchild4) // info
 	// child4.Children = append(child4.Children, grandchild4, grandchild14, grandchild16) // modificaciones
 
 	// ------- ventana principal ---------
@@ -138,7 +134,7 @@ func main() {
 			case "Consultas":
 				return []widget.TreeNodeID{"Cryptos", "Causas"}
 			case "Cryptos":
-				return []widget.TreeNodeID{"Precios - historico", "Precios - comparativo"}
+				return []widget.TreeNodeID{"Precios - historico", "Precios - comparativo", "Precios - CoinMarketCap", "Precios - Acciones"}
 			}
 			return []string{}
 		},
@@ -159,10 +155,7 @@ func main() {
 		func(id widget.TreeNodeID, branch bool, obj fyne.CanvasObject) {
 			img := obj.(*fyne.Container).Objects[1].(*canvas.Image)
 
-			//if !branch {
-			//		text += " (branch)"
 			img.Resource = root.icon
-			//}
 
 			obj.(*fyne.Container).Objects[0].(*widget.Label).SetText(id)
 			//obj.(*fyne.Container).Objects[1].(*canvas.Image). //SetResource(img.Resource)

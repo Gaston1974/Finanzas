@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hello/src/pkg/scripts"
 	"hello/src/pkg/styles"
+	"strconv"
 
 	// "hello/src/pkg/dao"
 	// funciones "hello/src/pkg/funciones"
@@ -30,8 +31,8 @@ func ShowCryptosCmp(im *canvas.Image, cont *fyne.Container, id string, win fyne.
 
 	// lbl := widget.NewLabel("seleccione ruta de descarga..")
 	lbl2 := widget.NewLabel("")
-	text1 := widget.NewLabel("SE CLASIFICA CRIPTOMONEDAS SEGUN PRECIOS \nENTRE LAS SIGUIENTES: \n\n " +
-		"BTCUSDT \n ETHUSDT \n SOLUSDT \n ADAUSDT \n\n DE ACUERDO A BINANCE.")
+	text1 := widget.NewLabel("SE CLASIFICA CRIPTOMONEDAS SEGUN PRECIOS \nENTRE LOS SIGUIENTES TIPOS: \n\n " +
+		"🔹BTCUSDT (Bitcoin) \n 🔹ETHUSDT (Ethereum) \n 🔹SOLUSDT \n 🔹ADAUSDT \n\n DE ACUERDO A BINANCE.")
 
 	form := widget.NewForm()
 
@@ -46,22 +47,14 @@ func ShowCryptosCmp(im *canvas.Image, cont *fyne.Container, id string, win fyne.
 	form.OnSubmit = func() {
 		fmt.Printf("\nconsulta enviada\n")
 
-		lbl2.SetText("GENERANDO ARCHIVO .....")
-		form.Refresh()
+		obj, res := scripts.Info2(form, lbl2)
 
-		obj := scripts.Info2()
+		if res == 1 {
+			showTable(a, obj)
 
-		showTable
-
-		// if res == 0 {
-
-		// 	lbl2.SetText("ARCHIVO GENERADO")
-
-		// } else {
-
-		// 	lbl2.SetText("ERROR: ARCHIVO NO GENERADO")
-
-		// }
+		} else {
+			lbl2.SetText("error..")
+		}
 
 	}
 
@@ -72,33 +65,30 @@ func ShowCryptosCmp(im *canvas.Image, cont *fyne.Container, id string, win fyne.
 
 }
 
-func showTable(w fyne.Window, ob []scripts.Classify) {
+func showTable(a fyne.App, ob []scripts.Classify) {
+
+	w := a.NewWindow("RESULTADOS")
 
 	fil := len(ob)
-	atributes := ob[0].Atr()
+	atributes := []string{"nombre", "precio", "categoria"}
 	col := len(atributes)
 
-	data := make([][]string, fil)
+	data := make([][]string, fil+1)
 
-	for i := 0; i < fil; i++ {
-		data[i] = make([]string, col)
+	for j := 0; j < fil+1; j++ {
+		data[j] = make([]string, col)
 	}
 
-	for i, v := range ob {
+	for i := range 3 {
 
-		for f, at := range atributes {
+		data[0][i] = atributes[i]
+	}
 
-			data[i][f] = v.Get(at)
-			// fmt.Printf("\n objeto: %s", v.Caratula)
-			// fmt.Printf("\n atributo: %s", at)
-			// fmt.Printf("\n i: %d f: %d", i, f)
-			// fmt.Printf("\n valor: %s", v.Get(at))
-			// apiDatas.Wait(3)
-
-			//fmt.Printf("/n valor: %s", v.Get(at))
-
-		}
-
+	for k, v := range ob {
+		k++
+		data[k][0] = v.Name.Symbol
+		data[k][1] = strconv.FormatFloat(v.Name.Price, 'f', 2, 64)
+		data[k][2] = v.Category
 	}
 
 	list := widget.NewTable(
@@ -106,15 +96,22 @@ func showTable(w fyne.Window, ob []scripts.Classify) {
 			return len(data), len(data[0])
 		},
 		func() fyne.CanvasObject {
-			return widget.NewLabel("wide content")
+			// return widget.NewLabel("wide content")
+			return canvas.NewText("wide content", color.White)
 		},
 		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col])
+			o.(*canvas.Text).Text = data[i.Row][i.Col]
+			if i.Row == 0 {
+
+				o.(*canvas.Text).Color = color.NRGBA{R: 0, G: 180, B: 0, A: 255}
+			}
+			// o.(*widget.Label).
+			// o.(*widget.Label).SetText(data[i.Row][i.Col])
 		})
 
 	w.SetContent(list)
-	w.Resize(fyne.NewSize(1300, 600))
+	w.Resize(fyne.NewSize(250, 150))
 	w.SetContent(container.NewVScroll(list))
-	w.ShowAndRun()
+	w.Show()
 
 }
